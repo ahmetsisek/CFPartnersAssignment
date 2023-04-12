@@ -33,4 +33,4 @@ If the source files do not have a header, set the header flag (third argument) t
 `command: "/opt/spark/bin/spark-submit --packages io.delta:delta-core_2.12:1.2.1 --master spark://spark-master:7077 /app/IngestCSVToDelta.py /tmp/data/input /tmp/data/output false"` and rebuild.
 
 ## System Diagram
-![System Design](https://github.com/ahmetsisek/CFPartnersAssignment/system_design.png)
+![System Design](https://github.com/ahmetsisek/CFPartnersAssignment/blob/master/system_design.png)
