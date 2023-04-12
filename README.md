@@ -31,3 +31,6 @@ Use `docker compose up` and `docker compose down` to activate and deactivate con
 The job (*IngestCSVToDelta.py*) takes 3 arguments: path to input files, path to write the output and header flag.
 If the source files do not have a header, set the header flag (third argument) to ***false*** in docker compose file like:
 `command: "/opt/spark/bin/spark-submit --packages io.delta:delta-core_2.12:1.2.1 --master spark://spark-master:7077 /app/IngestCSVToDelta.py /tmp/data/input /tmp/data/output false"` and rebuild.
+
+## System Diagram
+![System Design](https://github.com/ahmetsisek/CFPartnersAssignment/system_design.png)
