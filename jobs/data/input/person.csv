@@ -1,0 +1,5 @@
+person_id,person_name,birth_year,occupation
+1,fnameX lnameX,1990,data engineer
+2,fnameY lnameY,1995,data scientist
+3,fnameZ lnameZ,1980,data analyst
+5,fnameA lnameB,2005,data intern

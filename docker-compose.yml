@@ -1,0 +1,84 @@
+version: "3"
+
+networks:
+  spark-network:
+    driver: bridge
+
+services:
+  spark-master:
+    build:
+      context: .\spark
+      dockerfile: Dockerfile
+    container_name: spark-master
+    environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
+      - SPARK_PUBLIC_DNS=localhost
+      - SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=/tmp/spark-events"
+    volumes:
+      - .\spark\conf:/opt/spark/conf
+      - .\spark\logs:/tmp/spark-events
+      - .\jobs\data\input:/tmp/data/input
+      - .\jobs\data\output:/tmp/data/output
+    networks:
+      - spark-network
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+      - "4040:4040"
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+
+  spark-worker:
+    build:
+      context: .\spark
+      dockerfile: Dockerfile
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
+      - SPARK_PUBLIC_DNS=localhost
+      - SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=/tmp/spark-events"
+    volumes:
+      - .\spark\conf:/opt/spark/conf
+      - .\spark\work:/opt/spark/work
+      - .\spark\logs:/tmp/spark-events
+      - .\jobs\data\input:/tmp/data/input
+      - .\jobs\data\output:/tmp/data/output
+    networks:
+      - spark-network
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+
+  spark-history:
+    image: gcr.io/spark-operator/spark:v2.4.0
+    container_name: spark-history
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
+      - SPARK_PUBLIC_DNS=localhost
+      - SPARK_HISTORY_OPTS="-Dspark.history.fs.logDirectory=/tmp/spark-events"
+    volumes:
+      - .\spark\conf:/opt/spark/conf
+      - .\spark\logs:/tmp/spark-events
+    networks:
+      - spark-network
+    ports:
+      - "18080:18080"
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer
+
+  my-pyspark-job:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - spark-master
+      - spark-worker
+      - spark-history
+    command: "/opt/spark/bin/spark-submit --packages io.delta:delta-core_2.12:1.2.1 --master spark://spark-master:7077 /app/IngestCSVToDelta.py /tmp/data/input /tmp/data/output true"
+    volumes:
+      - .\spark\conf:/opt/spark/conf
+      - .\spark\logs:/tmp/spark-events
+      - .\jobs\data\input:/tmp/data/input
+      - .\jobs\data\output:/tmp/data/output
+    networks:
+      - spark-network
