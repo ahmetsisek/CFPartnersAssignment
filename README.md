@@ -19,9 +19,15 @@ This repo is developed to fulfill the requirements mentioned in the Home Task pd
 **spark/Dockerfile:** To base Spark master and worker images with necessary library setup.
 
 **docker-compose.yml:** To define services, volumes, networks for the Docker Application. 
-Use `docker compose build` to initially build the services initially and `docker compose up` and `docker compose down` to activate and deactivate containers.
 Includes 4 services for the Spark application:
 - *spark-master:* Master node
 - *spark-worker:* Worker node
 - *spark-history:* History server
 - *my-pyspark-job:* Application server to trigger the job
+
+# How to reproduce the environment and jobs:
+Use `docker compose build` to initially build the services.
+Use `docker compose up` and `docker compose down` to activate and deactivate containers.
+The job (*IngestCSVToDelta.py*) takes 3 arguments: path to input files, path to write the output and header flag.
+If the source files do not have a header, set the header flag (third argument) to ***false*** in docker compose file like:
+`command: "/opt/spark/bin/spark-submit --packages io.delta:delta-core_2.12:1.2.1 --master spark://spark-master:7077 /app/IngestCSVToDelta.py /tmp/data/input /tmp/data/output false"` and rebuild.
