@@ -25,7 +25,7 @@ Includes 4 services for the Spark application:
 - *spark-history:* History server
 - *my-pyspark-job:* Application server to trigger the job
 
-# How to reproduce the environment and jobs:
+## How to reproduce the environment and jobs:
 Use `docker compose build` to initially build the services.
 Use `docker compose up` and `docker compose down` to activate and deactivate containers.
 The job (*IngestCSVToDelta.py*) takes 3 arguments: path to input files, path to write the output and header flag.
